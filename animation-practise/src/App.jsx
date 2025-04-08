@@ -1,51 +1,44 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './style.css';
 import { motion, useScroll, useTransform } from 'framer-motion';
 
 export default function AmbitioScrollCards() {
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const { scrollY } = useScroll();
 
-  // Animated gradient background
   const bgColor = useTransform(
     scrollY,
     [0, 500, 900, 1300, 1700, 2100],
     [
-      '#ffffff',
-      'radial-gradient(circle at top left, #ff6ec4, #7873f5)',
-      'linear-gradient(to bottom, #43cea2, #185a9d)',
-      'linear-gradient(to bottom, #ff9a9e, #fad0c4)',
-      'linear-gradient(to bottom, #a1c4fd, #c2e9fb)',
-      'linear-gradient(to bottom, #fddb92, #d1fdff)'
+      isDarkMode ? '#111' : '#ffffff',
+      isDarkMode ? '#1a1a2e' : '#ff6ec4',
+      isDarkMode ? '#16213e' : '#43cea2',
+      isDarkMode ? '#0f3460' : '#ff9a9e',
+      isDarkMode ? '#1a1a2e' : '#a1c4fd',
+      isDarkMode ? '#0f3460' : '#fddb92'
     ]
   );
 
-  // Scale animations for each card
-  const scale1 = useTransform(scrollY, [500, 900], [1, 0.8]);
-  const scale2 = useTransform(scrollY, [900, 1300], [1, 0.8]);
-  const scale3 = useTransform(scrollY, [1300, 1700], [1, 0.8]);
-  const scale4 = useTransform(scrollY, [1700, 2100], [1, 0.8]);
-  const scale5 = useTransform(scrollY, [2100, 2500], [1, 0.8]);
+  const scales = [
+    useTransform(scrollY, [500, 900], [1, 0.8]),
+    useTransform(scrollY, [900, 1300], [1, 0.8]),
+    useTransform(scrollY, [1300, 1700], [1, 0.8]),
+    useTransform(scrollY, [1700, 2100], [1, 0.8]),
+    useTransform(scrollY, [2100, 2500], [1, 0.8]),
+  ];
 
-  const getScale = (index) => {
-    return [scale1, scale2, scale3, scale4, scale5][index] || 1;
-  };
+  const rotates = [
+    useTransform(scrollY, [500, 900], [0, 5]),
+    useTransform(scrollY, [900, 1300], [0, 5]),
+    useTransform(scrollY, [1300, 1700], [0, 5]),
+    useTransform(scrollY, [1700, 2100], [0, 5]),
+    useTransform(scrollY, [2100, 2500], [0, 5]),
+  ];
 
-  // Rotation animations for each card
-  const rotate1 = useTransform(scrollY, [500, 900], [0, 5]);
-  const rotate2 = useTransform(scrollY, [900, 1300], [0, 5]);
-  const rotate3 = useTransform(scrollY, [1300, 1700], [0, 5]);
-  const rotate4 = useTransform(scrollY, [1700, 2100], [0, 5]);
-  const rotate5 = useTransform(scrollY, [2100, 2500], [0, 5]);
-
-  const getRotate = (index) => {
-    return [rotate1, rotate2, rotate3, rotate4, rotate5][index] || 0;
-  };
-
-  // Shape parallax animation transforms
-  const shapeX1 = useTransform(scrollY, [0, 1000], [0, -50]);
-  const shapeY1 = useTransform(scrollY, [0, 1000], [0, 50]);
-  const shapeY2 = useTransform(scrollY, [0, 1000], [0, -30]);
-  const shapeX2 = useTransform(scrollY, [0, 1000], [0, 30]);
+  const shapeX1 = useTransform(scrollY, [0, 1000], [0, -20]);
+  const shapeY1 = useTransform(scrollY, [0, 1000], [0, 20]);
+  const shapeY2 = useTransform(scrollY, [0, 1000], [0, -20]);
+  const shapeX2 = useTransform(scrollY, [0, 1000], [0, 20]);
 
   const cards = [
     {
@@ -101,8 +94,7 @@ export default function AmbitioScrollCards() {
   ];
 
   return (
-    <div style={{ position: 'relative' }}>
-      {/* Animated gradient background */}
+    <div style={{ position: 'relative' }} className={isDarkMode ? 'dark' : 'light'}>
       <motion.div
         style={{
           width: '100%',
@@ -110,17 +102,22 @@ export default function AmbitioScrollCards() {
           position: 'fixed',
           top: 0,
           left: 0,
-          backgroundImage: bgColor,
+          backgroundColor: bgColor,
           backgroundSize: 'cover',
           zIndex: 0
         }}
       />
 
-      {/* Cards container */}
-      <div className="ambitio-vertical-container" style={{ zIndex: 1, position: 'relative' }}>
+      <div className="theme-toggle">
+        <button onClick={() => setIsDarkMode(!isDarkMode)}>
+          {isDarkMode ? '☀ Light Mode' : '🌙 Dark Mode'}
+        </button>
+      </div>
+
+      <div className="ambitio-vertical-container">
         {cards.map((card, index) => {
-          const scale = getScale(index);
-          const rotate = getRotate(index);
+          const scale = scales[index];
+          const rotate = rotates[index];
 
           return (
             <motion.div
@@ -134,15 +131,13 @@ export default function AmbitioScrollCards() {
                 scale,
                 rotate,
                 position: 'sticky',
-                top: '70px',
-                backdropFilter: 'blur(100px)',
+                top: '80px'
               }}
               whileHover={{
                 scale: 1.02,
-                boxShadow: '0 0 30px rgba(255, 255, 255, 0.3)',
+                boxShadow: '0 0 30px rgba(255, 255, 255, 0.3)'
               }}
             >
-              {/* Background floating shapes */}
               <div className="ambitio-card-bg-shapes">
                 <motion.span className="circle top-left" style={{ x: shapeX1 }} />
                 <motion.span className="diamond bottom-right" style={{ y: shapeY1 }} />
@@ -150,16 +145,18 @@ export default function AmbitioScrollCards() {
                 <motion.span className="diamond top-right" style={{ x: shapeX2 }} />
               </div>
 
-              <h2>{card.heading}</h2>
-              <p>{card.subheading}</p>
+              <div className="ambitio-card-content">
+                <h2>{card.heading}</h2>
+                <p>{card.subheading}</p>
 
-              <div className="ambitio-stats">
-                {card.stats.map((stat, i) => (
-                  <div className="stat-block" key={i}>
-                    <h3>{stat.number}</h3>
-                    <p>{stat.label}</p>
-                  </div>
-                ))}
+                <div className="ambitio-stats">
+                  {card.stats.map((stat, i) => (
+                    <div className="stat-block" key={i}>
+                      <h3>{stat.number}</h3>
+                      <p>{stat.label}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
             </motion.div>
           );
